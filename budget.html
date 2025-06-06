@@ -16,17 +16,24 @@
       overflow-x: hidden;
       text-align: center;
     }
+    h2 {
+      margin-top: 20px;
+      font-size: 28px;
+    }
+    #instructions {
+      padding: 10px 20px;
+      font-size: 18px;
+      color: #333;
+    }
     canvas {
       background: #f0f4f8;
-      margin: 80px auto 20px auto;
+      display: block;
+      margin: 30px auto 20px auto;
       border: 3px solid #0a3d62;
       border-radius: 10px;
       touch-action: none;
       max-width: 100%;
       height: auto;
-    }
-    #overlay {
-      padding: 0 10px;
     }
     #startBtn, #emailForm button {
       padding: 12px 24px;
@@ -55,15 +62,13 @@
       font-size: 22px;
       margin-top: 20px;
     }
-    #instructions {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-    #instructions p {
-      margin: 10px 0;
-      line-height: 1.4;
-    }
     @media (max-width: 480px) {
+      h2 {
+        font-size: 24px;
+      }
+      #instructions {
+        font-size: 16px;
+      }
       #startBtn, #emailForm button {
         font-size: 16px;
         padding: 10px 20px;
@@ -75,26 +80,25 @@
   </style>
 </head>
 <body>
-  <div id="overlay">
-    <h2>Собери бюджет!</h2>
+  <h2>Собери бюджет!</h2>
 
-    <div id="instructions">
-      <p>Собирай 🪙, 💰 и 💵 — они пополняют твой бюджет!</p>
-      <p>Избегай 💄, 💅, 🍓, 💃, 🍷, 🏠 и 🚗 — это траты, они уменьшают твой бюджет.</p>
-      <p>Управляй корзиной 🧺 с помощью стрелок на клавиатуре или пальцем на экране.</p>
-      <p>У тебя есть 45 секунд — удачи!</p>
-    </div>
-
-    <button id="startBtn">Начать игру</button>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    <p id="scoreText"></p>
-
-    <form id="emailForm" style="display:none">
-      <p>Оставьте e-mail и получите подарок!</p>
-      <input type="email" id="email" placeholder="Ваш e-mail" required />
-      <button type="submit">Отправить</button>
-    </form>
+  <div id="instructions">
+    <p>Добро пожаловать в игру <strong>«Собери бюджет»</strong>!</p>
+    <p>Собирай 🪙, 💰 и 💵 — это полезные траты!</p>
+    <p>Избегай 💄, 💅, 🍓, 💃, 🍷, 🏠 и 🚗 — они уменьшают твой бюджет.</p>
+    <p>Управляй корзиной 🧺 с помощью стрелок на клавиатуре или пальцем на экране.</p>
+    <p>У тебя есть 45 секунд — удачи!</p>
   </div>
+
+  <button id="startBtn">Начать игру</button>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <p id="scoreText"></p>
+
+  <form id="emailForm" style="display:none">
+    <p>Оставьте e-mail и получите подарок!</p>
+    <input type="email" id="email" placeholder="Ваш e-mail" required />
+    <button type="submit">Отправить</button>
+  </form>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -195,7 +199,6 @@
       startBtn.style.display = 'none';
       scoreText.textContent = '';
       emailForm.style.display = 'none';
-      document.getElementById('instructions').style.display = 'none';
 
       spawnInterval = setInterval(spawnObject, 800);
       let difficultyInterval = setInterval(() => {
