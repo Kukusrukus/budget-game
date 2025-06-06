@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Собери бюджет!</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e9f1f7;
+      overflow-x: hidden;
+    }
+    canvas {
+      background: #f0f4f8;
+      display: block;
+      margin: 100px auto 20px auto;
+      border: 3px solid #0a3d62;
+      border-radius: 10px;
+    }
+    #overlay {
+      position: relative;
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 20px;
+      color: #0a3d62;
+      margin-top: 20px;
+    }
+    #startBtn, #emailForm button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #0a3d62;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #emailForm {
+      margin-top: 20px;
+    }
+    #emailForm input {
+      padding: 10px;
+      font-size: 18px;
+      width: 250px;
+      margin-right: 10px;
+      border: 2px solid #0a3d62;
+      border-radius: 6px;
+    }
+    #scoreText {
+      font-size: 22px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay">
+    <h2>Собери бюджет!</h2>
+    <button id="startBtn">Начать игру</button>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <p id="scoreText"></p>
+    <form id="emailForm" style="display:none">
+      <p>Оставьте e-mail и получите подарок!</p>
+      <input type="email" id="email" placeholder="Ваш e-mail" required />
+      <button type="submit">Отправить</button>
+    </form>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const emailForm = document.getElementById('emailForm');
+    const scoreText = document.getElementById('scoreText');
+
+    let player = { x: 180, y: 550, width: 40, height: 40, speed: 5 };
+    let objects = [];
+    let score = 0;
+    let gameOver = false;
+    let keys = {};
+    let level = 1;
+    let spawnInterval;
+
+    const goodEmojis = ['🪙', '💰', '💵'];
+    const badEmojis = ['💄', '💅', '🍓', '💃', '🍷', '🏠', '🚗'];
+
+    function drawPlayer() {
+      ctx.font = '36px serif';
+      ctx.fillText('🧺', player.x, player.y + player.height);
+    }
+
+    function drawObjects() {
+      ctx.font = '28px serif';
+      for (let obj of objects) {
+        ctx.save();
+        ctx.translate(obj.x + obj.size / 2, obj.y + obj.size / 2);
+        ctx.rotate(obj.rotation);
+        ctx.fillText(obj.emoji, -obj.size / 2, obj.size / 2);
+        ctx.restore();
+      }
+    }
+
+    function updateObjects() {
+      for (let obj of objects) {
+        obj.y += obj.speed;
+        obj.rotation += obj.spin;
+
+        if (
+          obj.y + obj.size >= player.y &&
+          obj.y <= player.y + player.height &&
+          obj.x + obj.size >= player.x &&
+          obj.x <= player.x + player.width
+        ) {
+          score += obj.good ? 1 : -1;
+          obj.y = canvas.height + 100;
+        }
+      }
+      objects = objects.filter(obj => obj.y < canvas.height);
+    }
+
+    function spawnObject() {
+      const good = Math.random() < 0.7;
+      const emoji = good ? goodEmojis[Math.floor(Math.random() * goodEmojis.length)] : badEmojis[Math.floor(Math.random() * badEmojis.length)];
+      let newObj = {
+        x: Math.random() * (canvas.width - 30),
+        y: -40,
+        size: 30,
+        speed: 2 + level + Math.random() * 2,
+        good,
+        emoji,
+        rotation: 0,
+        spin: (Math.random() - 0.5) * 0.1
+      };
+      objects.push(newObj);
+    }
+
+    function drawScore() {
+      ctx.fillStyle = '#000';
+      ctx.font = '22px sans-serif';
+      ctx.fillText(`Бюджет: ${score} | Уровень: ${level}`, 10, 30);
+    }
+
+    function gameLoop() {
+      if (gameOver) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+      if (keys["ArrowRight"] && player.x < canvas.width - player.width) player.x += player.speed;
+
+      drawPlayer();
+      drawObjects();
+      updateObjects();
+      drawScore();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+      score = 0;
+      level = 1;
+      objects = [];
+      gameOver = false;
+      player.x = 180;
+      startBtn.style.display = 'none';
+      scoreText.textContent = '';
+      emailForm.style.display = 'none';
+
+      spawnInterval = setInterval(spawnObject, 800);
+      let difficultyInterval = setInterval(() => {
+        level++;
+        clearInterval(spawnInterval);
+        spawnInterval = setInterval(spawnObject, Math.max(200, 800 - level * 100));
+      }, 10000);
+
+      setTimeout(() => {
+        gameOver = true;
+        clearInterval(spawnInterval);
+        clearInterval(difficultyInterval);
+        scoreText.textContent = `Игра окончена! Ваш результат: ${score}`;
+        emailForm.style.display = 'block';
+        window.scrollTo({ top: canvas.offsetTop + canvas.offsetHeight, behavior: 'smooth' });
+      }, 45000);
+
+      gameLoop();
+    }
+
+    document.addEventListener('keydown', e => keys[e.key] = true);
+    document.addEventListener('keyup', e => keys[e.key] = false);
+    startBtn.addEventListener('click', startGame);
+    emailForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      alert(`Спасибо! Мы отправим материал на ${email}`);
+      emailForm.style.display = 'none';
+      startBtn.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
