@@ -13,29 +13,30 @@
     body {
       font-family: Arial, sans-serif;
       background-color: #e9f1f7;
-      overflow-x: hidden;
-      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+      gap: 20px;
+    }
+    .left, .right {
+      flex: 1;
+      min-width: 300px;
+    }
+    .left {
+      max-width: 400px;
     }
     h2 {
-      margin-top: 20px;
+      margin-bottom: 10px;
       font-size: 28px;
     }
     #instructions {
-      padding: 10px 20px;
       font-size: 18px;
       color: #333;
     }
-    canvas {
-      background: #f0f4f8;
-      display: block;
-      margin: 30px auto 20px auto;
-      border: 3px solid #0a3d62;
-      border-radius: 10px;
-      touch-action: none;
-      max-width: 100%;
-      height: auto;
-    }
-    #startBtn, #emailForm button {
+    #startBtn {
       padding: 12px 24px;
       font-size: 18px;
       background-color: #0a3d62;
@@ -45,8 +46,24 @@
       cursor: pointer;
       margin-top: 20px;
     }
+    canvas {
+      background: #f0f4f8;
+      display: block;
+      margin: 0 auto;
+      border: 3px solid #0a3d62;
+      border-radius: 10px;
+      touch-action: none;
+      max-width: 100%;
+      height: auto;
+    }
+    #scoreText {
+      font-size: 22px;
+      margin-top: 20px;
+      text-align: center;
+    }
     #emailForm {
       margin-top: 20px;
+      text-align: center;
     }
     #emailForm input {
       padding: 10px;
@@ -58,47 +75,45 @@
       border-radius: 6px;
       display: block;
     }
-    #scoreText {
-      font-size: 22px;
-      margin-top: 20px;
+    #emailForm button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #0a3d62;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
-    @media (max-width: 480px) {
-      h2 {
-        font-size: 24px;
-      }
-      #instructions {
-        font-size: 16px;
-      }
-      #startBtn, #emailForm button {
-        font-size: 16px;
-        padding: 10px 20px;
-      }
-      #scoreText {
-        font-size: 18px;
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
 </head>
 <body>
-  <h2>Собери бюджет!</h2>
-
-  <div id="instructions">
-    <p>Добро пожаловать в игру <strong>«Собери бюджет»</strong>!</p>
-    <p>Собирай 🪙, 💰 и 💵 — это полезные траты!</p>
-    <p>Избегай 💄, 💅, 🍓, 💃, 🍷, 🏠 и 🚗 — они уменьшают твой бюджет.</p>
-    <p>Управляй корзиной 🧺 с помощью стрелок на клавиатуре или пальцем на экране.</p>
-    <p>У тебя есть 45 секунд — удачи!</p>
+  <div class="container">
+    <div class="left">
+      <h2>Собери бюджет!</h2>
+      <div id="instructions">
+        <p><strong>Цель игры:</strong> собирать полезные траты 🪙 💰 💵</p>
+        <p>Избегай импульсивных покупок 💄 💅 🍓 💃 🍷 🏠 🚗</p>
+        <p>Управление: стрелками ← → или пальцем</p>
+        <p>У тебя есть 45 секунд. Удачи!</p>
+      </div>
+      <button id="startBtn">Начать игру</button>
+      <div id="scoreText"></div>
+      <form id="emailForm" style="display:none">
+        <p>Оставьте e-mail и получите подарок!</p>
+        <input type="email" id="email" placeholder="Ваш e-mail" required />
+        <button type="submit">Отправить</button>
+      </form>
+    </div>
+    <div class="right">
+      <canvas id="gameCanvas" width="400" height="600"></canvas>
+    </div>
   </div>
-
-  <button id="startBtn">Начать игру</button>
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
-  <p id="scoreText"></p>
-
-  <form id="emailForm" style="display:none">
-    <p>Оставьте e-mail и получите подарок!</p>
-    <input type="email" id="email" placeholder="Ваш e-mail" required />
-    <button type="submit">Отправить</button>
-  </form>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
